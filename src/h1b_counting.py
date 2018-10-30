@@ -1,60 +1,57 @@
 import argparse
 import csv
-import heapq
-from heapq import heappush
-from heapq import heappop
-from operator import itemgetter
 
-parser = argparse.ArgumentParser(description='Generate a purely text document from the wikidump xml')
-parser.add_argument('h1b', metavar='h', type=str, nargs=1, help='The address for the dump file')
-parser.add_argument('occupations', metavar='o', type=str, nargs=1, help='The address in which to place.')
-parser.add_argument('states', metavar='s', type=str, nargs=1, help='The address in which to place.')
+parser = argparse.ArgumentParser(description='anaylze h1b information')
+parser.add_argument('h1b', metavar='h', type=str, nargs=1, help='the raw data')
+parser.add_argument('occupations', metavar='o', type=str, nargs=1, help='results for top occupations')
+parser.add_argument('states', metavar='s', type=str, nargs=1, help='results for top states')
 args = parser.parse_args()
 
+"""
+increment dictionary by 1 at key k
+"""
 def incrementK(k, dictionary):
     if k in dictionary.keys():
         dictionary[k] += 1
     else:
-        dictionary[k] = 0
+        dictionary[k] = 1
 
-inp = args.h1b[0]
-outo = args.occupations[0]
-outs = args.states[0]
-
-print(inp)
-print(outo)
-print(outs)
-
-with open(inp, newline='') as csvfile:
+# Parse and read in the prepared csv file
+with open(args.h1b[0], newline='') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=';')
-    i = 0
+    certified = 0
     states = {}
+    occupations = {}
+    headerExists = True
 
+
+    k=0
     for row in spamreader:
-        if i == 10000:
-            break
-        if row[2] == "CERTIFIED":
-            incrementK(row[12], states)
-        i += 1
 
-print(type(states))
+        if headerExists:
+            header = row
+            headerExists = False
 
-h = []
-for k in states:
-    entry = str(states[k]) + k
-    heappush(h, entry)
+        if row[header.index('CASE_STATUS')] == "CERTIFIED":
+            certified += 1
+            incrementK(row[header.index('EMPLOYER_STATE')], states)
+            incrementK(row[header.index('SOC_NAME')], occupations)
 
-print(h)
 
-for i in range(10):
-    print(heappop(h))
+# Write Top States to file
+if '' in states.keys():
+    del states['']
+gg = sorted(states.items(), key=lambda x: (x[1],-ord(x[0][0]), -ord(x[0][1])), reverse=True)
+with open(args.states[0], mode='w') as f:
+    f.write("TOP_STATES;NUMBER_CERTIFIED_APPLICATIONS;PERCENTAGE\n")
+    for k in gg[0:10]:
+        percent = str(round(100*k[1] / certified,1))+"%"
+        f.write(str(k[0])+";" + str(k[1]) + ";" + percent+"\n")
 
-#
-# top_states = heapq.nlargest(len(states), states, key=states.get)
-#
-#
-# f = open("tester.txt", mode='w')
-# for k in top_states:
-#     f.write(str(k)+ " " + str(states[k])+"\n")
-#
-# f.close()
+# Write Top Occupations to file
+gg = sorted(occupations.items(), key=lambda x: (x[1],-ord(x[0][0]), -ord(x[0][1])), reverse=True)
+with open(args.occupations[0], mode='w') as f:
+    f.write("TOP_OCCUPATIONS;NUMBER_CERTIFIED_APPLICATIONS;PERCENTAGE\n")
+    for k in gg[0:10]:
+        percent = str(round(100*k[1] / certified,1))+"%"
+        f.write(str(k[0])+";" + str(k[1]) + ";" + percent+"\n")

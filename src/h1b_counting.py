@@ -2,9 +2,12 @@ import argparse
 import csv
 
 parser = argparse.ArgumentParser(description='anaylze h1b information')
-parser.add_argument('h1b', metavar='h', type=str, nargs=1, help='the raw data')
-parser.add_argument('occupations', metavar='o', type=str, nargs=1, help='results for top occupations')
-parser.add_argument('states', metavar='s', type=str, nargs=1, help='results for top states')
+parser.add_argument('h1b', metavar='h', type=str, nargs=1,
+                    help='the raw data')
+parser.add_argument('occupations', metavar='o', type=str, nargs=1,
+                    help='results for top occupations')
+parser.add_argument('states', metavar='s', type=str, nargs=1,
+                    help='results for top states')
 args = parser.parse_args()
 
 """
@@ -24,14 +27,11 @@ with open(args.h1b[0], newline='') as csvfile:
     occupations = {}
     headerExists = True
 
-
     k=0
     for row in spamreader:
-
         if headerExists:
             header = row
             headerExists = False
-
         if row[header.index('CASE_STATUS')] == "CERTIFIED":
             certified += 1
             incrementK(row[header.index('EMPLOYER_STATE')], states)
@@ -49,7 +49,7 @@ with open(args.states[0], mode='w') as f:
         f.write(str(k[0])+";" + str(k[1]) + ";" + percent+"\n")
 
 # Write Top Occupations to file
-gg = sorted(occupations.items(), key=lambda x: (x[1],-ord(x[0][0]), -ord(x[0][1])), reverse=True)
+gg = sorted(occupations.items(), key=lambda x: (-x[1], x[0]), reverse=False)
 with open(args.occupations[0], mode='w') as f:
     f.write("TOP_OCCUPATIONS;NUMBER_CERTIFIED_APPLICATIONS;PERCENTAGE\n")
     for k in gg[0:10]:

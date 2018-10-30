@@ -28,17 +28,25 @@ print(outs)
 with open(inp, newline='') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=';')
     i = 0
-    top_states = {}
+    states = {}
 
     for row in spamreader:
-        if i == 1000:
+        if i == 1000000:
             break
         if row[2] == "CERTIFIED":
-            incrementK(row[12], top_states)
+            incrementK(row[12], states)
         i += 1
 
 
-print(top_states)
-print([k for k in heapq.nlargest(10, top_states, key=top_states.get)])
+print(states)
+top_states = heapq.nlargest(len(states), states, key=states.get)
+print([k for k in top_states])
+
+f = open("tester.txt", mode='w')
+
+for k in top_states:
+    f.write(k+"\n")
 
 
+
+f.close()

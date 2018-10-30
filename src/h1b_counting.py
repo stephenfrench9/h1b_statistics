@@ -31,22 +31,30 @@ with open(inp, newline='') as csvfile:
     states = {}
 
     for row in spamreader:
-        if i == 1000000:
+        if i == 10000:
             break
         if row[2] == "CERTIFIED":
             incrementK(row[12], states)
         i += 1
 
+print(type(states))
 
-print(states)
-top_states = heapq.nlargest(len(states), states, key=states.get)
-print([k for k in top_states])
+h = []
+for k in states:
+    entry = str(states[k]) + k
+    heappush(h, entry)
 
-f = open("tester.txt", mode='w')
+print(h)
 
-for k in top_states:
-    f.write(k+"\n")
+for i in range(10):
+    print(heappop(h))
 
-
-
-f.close()
+#
+# top_states = heapq.nlargest(len(states), states, key=states.get)
+#
+#
+# f = open("tester.txt", mode='w')
+# for k in top_states:
+#     f.write(str(k)+ " " + str(states[k])+"\n")
+#
+# f.close()

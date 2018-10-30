@@ -10,6 +10,7 @@ parser.add_argument('states', metavar='s', type=str, nargs=1,
                     help='results for top states')
 args = parser.parse_args()
 
+
 """
 increment dictionary by 1 at key k
 """
@@ -19,7 +20,8 @@ def incrementK(k, dictionary):
     else:
         dictionary[k] = 1
 
-# Parse and read in the prepared csv file
+
+# read and parse the prepared csv file
 with open(args.h1b[0], newline='') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=';')
     certified = 0
@@ -27,7 +29,6 @@ with open(args.h1b[0], newline='') as csvfile:
     occupations = {}
     headerExists = True
 
-    k=0
     for row in spamreader:
         if headerExists:
             header = row
@@ -41,17 +42,17 @@ with open(args.h1b[0], newline='') as csvfile:
 # Write Top States to file
 if '' in states.keys():
     del states['']
-gg = sorted(states.items(), key=lambda x: (x[1],-ord(x[0][0]), -ord(x[0][1])), reverse=True)
+results = sorted(states.items(), key=lambda x: (x[1],-ord(x[0][0]), -ord(x[0][1])), reverse=True)
 with open(args.states[0], mode='w') as f:
     f.write("TOP_STATES;NUMBER_CERTIFIED_APPLICATIONS;PERCENTAGE\n")
-    for k in gg[0:10]:
-        percent = str(round(100*k[1] / certified,1))+"%"
-        f.write(str(k[0])+";" + str(k[1]) + ";" + percent+"\n")
+    for count in results[0:10]:
+        percent = str(round(100*count[1] / certified,1))+"%"
+        f.write(str(count[0])+";" + str(count[1]) + ";" + percent+"\n")
 
 # Write Top Occupations to file
-gg = sorted(occupations.items(), key=lambda x: (-x[1], x[0]), reverse=False)
+results = sorted(occupations.items(), key=lambda x: (-x[1], x[0]), reverse=False)
 with open(args.occupations[0], mode='w') as f:
     f.write("TOP_OCCUPATIONS;NUMBER_CERTIFIED_APPLICATIONS;PERCENTAGE\n")
-    for k in gg[0:10]:
-        percent = str(round(100*k[1] / certified,1))+"%"
-        f.write(str(k[0])+";" + str(k[1]) + ";" + percent+"\n")
+    for count in results[0:10]:
+        percent = str(round(100*count[1] / certified,1))+"%"
+        f.write(str(count[0])+";" + str(count[1]) + ";" + percent+"\n")
